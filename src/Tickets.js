@@ -151,26 +151,72 @@ const Tickets = () => {
 
         const validFiles = [];
 
-        for (let file of files) {
-            if (file.size > 0.5 * 1024 * 1024) {
-                Swal.fire({
-                    icon: "error",
-                    title: "File Too Large",
-                    text: `${file.name} exceeds 0.5 MB limit`,
-                });
-                continue;
+        const secretPatterns = [
+            /SG\.[A-Za-z0-9_-]+/g, // SendGrid API Key pattern
+            /ghp_[A-Za-z0-9]+/g,   // GitHub Personal Access Token
+            /AIza[A-Za-z0-9-_]{35}/g // Example: Google API Key
+        ];
+
+        const checkFileForSecrets = (file) => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const content = event.target.result;
+                    for (let pattern of secretPatterns) {
+                        if (pattern.test(content)) {
+                            resolve(file.name); // found a secret
+                            return;
+                        }
+                    }
+                    resolve(null); // no secret
+                };
+                reader.onerror = () => reject(file.name);
+                reader.readAsText(file); // read file as text
+            });
+        };
+
+        const processFiles = async () => {
+            for (let file of files) {
+                if (file.size > 0.5 * 1024 * 1024) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "File Too Large",
+                        text: `${file.name} exceeds 0.5 MB limit`,
+                    });
+                    continue;
+                }
+
+                try {
+                    const secretFile = await checkFileForSecrets(file);
+                    if (secretFile) {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Invalid File",
+                            text: `${file.name} contains a sensitive key and cannot be uploaded.`,
+                        });
+                        continue;
+                    }
+                    validFiles.push(file);
+                } catch {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error",
+                        text: `Cannot read file ${file.name}`,
+                    });
+                }
             }
-            validFiles.push(file);
-        }
 
-        if (validFiles.length) {
-            setFormData((prev) => ({
-                ...prev,
-                attachments: [...(prev.attachments || []), ...validFiles],
-            }));
-        }
+            if (validFiles.length) {
+                setFormData((prev) => ({
+                    ...prev,
+                    attachments: [...(prev.attachments || []), ...validFiles],
+                }));
+            }
 
-        e.target.value = null; // allow re-uploading same file name
+            e.target.value = null; // allow re-uploading same file name
+        };
+
+        processFiles();
     };
 
     const removeFile = (index) => {
