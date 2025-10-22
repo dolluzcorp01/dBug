@@ -1,0 +1,392 @@
+.tickets-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    background-image: url('./assets/img/doodle_bg.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.ticket-card {
+    background: #fff;
+    width: 500px;
+    max-width: 95%;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.ticket-logo {
+    font-size: 30px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #111;
+}
+
+.ticket-logo img {
+    max-width: 85%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+.ticket-form label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: 10px;
+    margin-bottom: 4px;
+    color: #333;
+}
+
+.ticket-form input,
+.ticket-form select,
+.ticket-form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 8px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+    background: #fff;
+}
+
+.ticket-row {
+    display: flex;
+    gap: 10px;
+}
+
+.ticket-row .field {
+    flex: 1;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 12px;
+    background: #0066ff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: 0.3s;
+}
+
+.submit-btn:hover {
+    background: #0052cc;
+}
+
+.ticket-note {
+    font-size: 12px;
+    color: #555;
+    margin-top: 10px;
+    text-align: left;
+    line-height: 1.4;
+    white-space: normal;
+}
+
+.ticket-note .note-title {
+    font-weight: 700;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.note-row {
+    display: flex;
+    align-items: flex-start;
+    margin-left: 5px;
+}
+
+.note-index {
+    flex-shrink: 0;
+}
+
+.ticket-note .note-content {
+    flex: 1;
+    margin-left: 3px;
+}
+
+.ticket-note i {
+    font-size: 10px;
+    vertical-align: middle;
+}
+
+.note-icon-text {
+    white-space: nowrap;
+}
+
+.email-input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.email-input-container input {
+    width: 100%;
+    padding-right: 30px;
+}
+
+.email-action-icon {
+    cursor: pointer;
+    position: absolute;
+    right: 50px;
+    /* margin-left: 5px; */
+    top: 15px;
+    font-size: 14px;
+    color: #444;
+}
+
+.email-valid-icon {
+    position: absolute;
+    right: 10px;
+    top: 13px;
+    color: green;
+    font-size: 18px;
+    pointer-events: none;
+}
+
+/* Disabled inputs and selects */
+input[disabled],
+select[disabled],
+textarea[disabled] {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+}
+
+/* Disabled inputs and selects on hover */
+input[disabled]:hover,
+select[disabled]:hover,
+textarea[disabled]:hover {
+    background-color: #f5f5f5;
+}
+
+/* Invalid fields */
+input.invalid,
+textarea.invalid,
+select.invalid {
+    border: 1px solid red;
+}
+
+/* Blur all inputs inside a container when email not verified */
+.ticket-fields.blurred {
+    filter: blur(3px);
+    pointer-events: none;
+    user-select: none;
+    opacity: 0.7;
+}
+
+.priority-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    margin-top: 5px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+}
+
+.priority-dropdown-item {
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.priority-dropdown-item:hover {
+    background: #f5f5f5;
+}
+
+.high {
+    color: red;
+}
+
+.medium {
+    color: orange;
+}
+
+.low {
+    color: green;
+}
+
+.priority-custom-dropdown {
+    width: 100%;
+    position: relative;
+}
+
+.priority-custom-dropdown .selected-option {
+    width: 100%;
+}
+
+/* Wrapper mimics select */
+.priority-custom-dropdown {
+    width: 100%;
+    position: relative;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Selected text */
+.priority-custom-dropdown .selected-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    cursor: pointer;
+}
+
+/* Arrow size */
+.priority-arrow {
+    font-size: 13px;
+}
+
+/* Remove gray block look */
+.priority-custom-dropdown .placeholder {
+    color: #aaa;
+    font-size: 14px;
+}
+
+/* Dropdown menu styling */
+.priority-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    width: 100%;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 9999;
+}
+
+/* Dropdown item */
+.priority-dropdown-item {
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.priority-dropdown-item:hover {
+    background: #0d6efd;
+    color: white;
+}
+
+.contact-icons {
+    font-size: 16px;
+}
+
+/* Original colors */
+.email-icon {
+    color: #1a73e8;
+}
+
+.mobile-icon {
+    color: #198754;
+}
+
+.cliq-icon {
+    color: #fd7e14;
+}
+
+/* Hover effect */
+.priority-dropdown-item:hover .contact-icons {
+    color: white;
+}
+
+.priority-dropdown-item * {
+    pointer-events: none;
+}
+
+.spinner {
+    width: 30px;
+    height: 30px;
+    border: 4px solid #ddd;
+    border-top: 4px solid #4A90E2;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 10px auto;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.issue-section {
+    margin-top: 25px;
+    margin-bottom: 25px;
+}
+
+.issue-section h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+/* Row for "Issue Type" label and radio options */
+.issue-type-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 5px;
+    margin-left: 2px;
+}
+
+/* Label text (Issue Type:) */
+.issue-type-label {
+    font-size: 15px;
+    font-weight: 500;
+    color: #333;
+    min-width: 100px;
+}
+
+/* Radio buttons container */
+.issue-options {
+    display: flex;
+    align-items: center;
+    gap: 100px;
+}
+
+/* Radio button + text */
+.issue-options label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 15px;
+    cursor: pointer;
+    color: #444;
+}
+
+/* Radio button styling */
+.issue-options input[type="radio"] {
+    accent-color: #007bff;
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+    margin-top: 8px;
+}
+
+/* Hover effect */
+.issue-options label:hover {
+    color: #000;
+}
