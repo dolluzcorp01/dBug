@@ -355,9 +355,16 @@ const Tickets = () => {
         e.preventDefault();
         setIsSubmitting(true);
 
-        // Required fields based on tickets_entry table
-        const requiredFields = ["emp_id", "issue_type", "summary", "assignee"];
+        // Define required fields dynamically
+        let requiredFields = ["emp_id", "issue_type", "summary", "reporting_team"];
 
+        if (issueType === "Bug") {
+            // Bug-specific required fields
+            requiredFields.push("priority_level", "testing_type", "devicesTested");
+        }
+        // Idea-specific fields: summary and description are already included
+
+        // Validate required fields
         for (let field of requiredFields) {
             if (!formData[field] || (Array.isArray(formData[field]) && !formData[field].length)) {
                 Swal.fire({
@@ -400,7 +407,17 @@ const Tickets = () => {
         }
 
         // Append description from Quill
-        formDataToSend.append("description", plainTextDescription);
+        // Identify which editor to use
+        const editor =
+            issueType === "Bug" ? bugQuill :
+                issueType === "Idea" ? ideaQuill :
+                    null;
+
+        if (editor) {
+            formDataToSend.append("description", editor.root.innerHTML);
+        } else {
+            formDataToSend.append("description", "");
+        }
 
         // ✅ Append multiple attachments (important part)
         if (formData.attachments && formData.attachments.length > 0) {
@@ -562,7 +579,7 @@ const Tickets = () => {
                                                         attachment: null,
                                                         priority: "",
                                                         team: "",
-                                                        testingType: "",
+                                                        testing_type: "",
                                                         devicesTested: [],
                                                     }));
 
@@ -605,7 +622,7 @@ const Tickets = () => {
                                                         attachment: null,
                                                         priority: "",
                                                         team: "",
-                                                        testingType: "",
+                                                        testing_type: "",
                                                         devicesTested: [],
                                                     }));
 
@@ -721,27 +738,31 @@ const Tickets = () => {
 
                         {issueType === "Bug" && (
                             <div className="ticket-fields">
-                                <label>Assignee</label>
+                                <label>Assignee <span style={{ color: "red" }}>*</span></label>
                                 <select disabled>
                                     <option selected>{issueType === "Bug" ? "Pavithran" : "Anand Sir"}</option>
                                 </select>
 
-                                <label>Priority <span style={{ color: "red" }}>* </span></label>
+                                <label>
+                                    Priority <span style={{ color: "red" }}>*</span>
+                                </label>
 
                                 <div className="priority-custom-dropdown" ref={priorityRef}>
-                                    <div className="selected-option" onClick={() => setShowPriority(prev => !prev)}>
+                                    <div
+                                        className="selected-option"
+                                        onClick={() => setShowPriority((prev) => !prev)}
+                                    >
                                         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                                            {formData.priority
-                                                ? priorities.find(p => p.value === formData.priority).icon
+                                            {formData.priority_level
+                                                ? priorities.find((p) => p.value === formData.priority_level)?.icon
                                                 : null}
-                                            {formData.priority
-                                                ? priorities.find(p => p.value === formData.priority).label
+                                            {formData.priority_level
+                                                ? priorities.find((p) => p.value === formData.priority_level)?.label
                                                 : "Select Priority"}
                                         </div>
                                         <i className="fa-solid fa-angle-down priority-arrow"></i>
                                     </div>
 
-                                    {/* Dropdown list */}
                                     {showPriority && (
                                         <div className="priority-dropdown-menu">
                                             {priorities.map((p) => (
@@ -749,8 +770,10 @@ const Tickets = () => {
                                                     key={p.value}
                                                     className="priority-dropdown-item"
                                                     onClick={(e) => {
-                                                        e.stopPropagation(); // Prevent toggle
-                                                        handleChange({ target: { name: "priority", value: p.value } });
+                                                        e.stopPropagation();
+                                                        handleChange({
+                                                            target: { name: "priority_level", value: p.value }, // ✅ fixed here
+                                                        });
                                                         setShowPriority(false);
                                                     }}
                                                 >
@@ -761,20 +784,24 @@ const Tickets = () => {
                                     )}
                                 </div>
 
-                                <label>Reporting Team</label>
-                                <select name="team" onChange={handleChange}>
-                                    <option>Dev Team</option>
-                                    <option>QA Team</option>
-                                    <option>Ops Team</option>
+                                <label>
+                                    Reporting Team <span style={{ color: "red" }}>*</span>
+                                </label>
+                                <select name="reporting_team" onChange={handleChange}>
+                                    <option value="">Select Team</option>
+                                    <option value="Dev Team">Dev Team</option>
+                                    <option value="QA Team">QA Team</option>
+                                    <option value="Ops Team">Ops Team</option>
                                 </select>
 
-                                <label>Testing Type</label>
-                                <select name="testingType" onChange={handleChange}>
-                                    <option>Manual</option>
-                                    <option>Automation</option>
+                                <label>Testing Type <span style={{ color: "red" }}>*</span></label>
+                                <select name="testing_type" onChange={handleChange}>
+                                    <option value="">Select Testing Type</option>
+                                    <option value="Manual">Manual</option>
+                                    <option value="Automation">Automation</option>
                                 </select>
 
-                                <label>Device Tested</label>
+                                <label>Device Tested <span style={{ color: "red" }}>*</span></label>
                                 <Select
                                     isMulti
                                     name="devicesTested"
@@ -818,16 +845,19 @@ const Tickets = () => {
 
                         {issueType === "Idea" && (
                             <div className="ticket-fields">
-                                <label>Assignee</label>
+                                <label>Assignee <span style={{ color: "red" }}>*</span></label>
                                 <select disabled>
                                     <option selected>{issueType === "Bug" ? "Pavithran" : "Anand Sir"}</option>
                                 </select>
 
-                                <label>Reporting Team</label>
-                                <select name="team" onChange={handleChange}>
-                                    <option>Dev Team</option>
-                                    <option>QA Team</option>
-                                    <option>Ops Team</option>
+                                <label>
+                                    Reporting Team <span style={{ color: "red" }}>*</span>
+                                </label>
+                                <select name="reporting_team" onChange={handleChange}>
+                                    <option value="">Select Team</option>
+                                    <option value="Dev Team">Dev Team</option>
+                                    <option value="QA Team">QA Team</option>
+                                    <option value="Ops Team">Ops Team</option>
                                 </select>
 
                                 <button type="submit" disabled={isSubmitting} className="submit-btn">
