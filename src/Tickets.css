@@ -391,6 +391,7 @@ select.invalid {
     color: #000;
 }
 
+/* Description field */
 .ql-editor {
     padding-top: 0 !important;
     margin-top: 0 !important;
