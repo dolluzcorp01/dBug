@@ -397,7 +397,7 @@ const Tickets = () => {
 
         // Append all fields from formData
         for (const key in formData) {
-            if (key !== "attachments" && formData[key]) {
+            if (key !== "attachments" && key !== "description" && formData[key]) { // skip description
                 if (Array.isArray(formData[key])) {
                     formDataToSend.append(key, JSON.stringify(formData[key]));
                 } else {
