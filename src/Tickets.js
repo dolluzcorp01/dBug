@@ -616,7 +616,7 @@ const Tickets = () => {
                                                     setFormData(prev => ({
                                                         ...prev,
                                                         issue_type: newType,
-                                                        assignee: "Anand Sir",
+                                                        assignee: "Anandth Shoban Balasubramanian",
                                                         summary: "",
                                                         description: "",
                                                         attachment: null,
@@ -740,7 +740,7 @@ const Tickets = () => {
                             <div className="ticket-fields">
                                 <label>Assignee <span style={{ color: "red" }}>*</span></label>
                                 <select disabled>
-                                    <option selected>{issueType === "Bug" ? "Pavithran" : "Anand Sir"}</option>
+                                    <option selected>{issueType === "Bug" ? "Pavithran" : "Anandth Shoban Balasubramanian"}</option>
                                 </select>
 
                                 <label>
@@ -847,7 +847,7 @@ const Tickets = () => {
                             <div className="ticket-fields">
                                 <label>Assignee <span style={{ color: "red" }}>*</span></label>
                                 <select disabled>
-                                    <option selected>{issueType === "Bug" ? "Pavithran" : "Anand Sir"}</option>
+                                    <option selected>{issueType === "Bug" ? "Pavithran" : "Anandth Shoban Balasubramanian"}</option>
                                 </select>
 
                                 <label>
