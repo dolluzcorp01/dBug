@@ -58,13 +58,19 @@ const Tickets = () => {
         const editor = issueType === "Bug" ? bugQuill : issueType === "Idea" ? ideaQuill : null;
         if (!editor) return;
 
-        // set default template only once (when editor loads)
-        if (editor && editor.getText().trim().length === 0) {
+        if (editor.getText().trim().length === 0) {
+            // 🧹 Remove any existing empty <p> elements
+            const paras = editor.root.querySelectorAll("p");
+            paras.forEach((p) => {
+                if (!p.textContent.trim()) p.remove();
+            });
+
+            // 📝 Insert default structured template
             editor.root.innerHTML = `
-            <p><strong>Steps to Reproduce:</strong><br>------------------------------------</p>
-            <p><strong>Test Data:</strong><br>------------------------------------</p>
-            <p><strong>Expected Result:</strong><br>------------------------------------</p>
-            <p><strong>Actual Result:</strong><br>------------------------------------</p>
+<p><strong>Steps to Reproduce:</strong><br><br></p>
+<p><strong>Test Data:</strong><br><br></p>
+<p><strong>Expected Result:</strong><br><br></p>
+<p><strong>Actual Result:</strong></p>
         `;
         }
 
@@ -428,8 +434,9 @@ const Tickets = () => {
             // Redirect to Thank_You page
             navigate("/thank-you", {
                 state: {
-                    employeeName: formData.emp_id,
+                    employeeName: data.employeeName,
                     ticketId: data.ticket_id,
+                    issueType: data.issueType,
                 },
             });
 
@@ -565,11 +572,11 @@ const Tickets = () => {
                                                     // Set default template in Quill
                                                     if (bugQuill) {
                                                         bugQuill.root.innerHTML = `
-          <p><strong>Steps to Reproduce:</strong><br>------------------------------------</p>
-          <p><strong>Test Data:</strong><br>------------------------------------</p>
-          <p><strong>Expected Result:</strong><br>------------------------------------</p>
-          <p><strong>Actual Result:</strong><br>------------------------------------</p>
-        `;
+                                                        <p><strong>Steps to Reproduce:</strong><br></p>
+                                                            <p><strong>Test Data:</strong><br></p>
+                                                            <p><strong>Expected Result:</strong><br></p>
+                                                            <p><strong>Actual Result:</strong><br></p>
+                                                        `;
                                                     }
                                                     if (ideaQuill) {
                                                         ideaQuill.root.innerHTML = ""; // clear Idea editor for now
@@ -608,11 +615,11 @@ const Tickets = () => {
                                                     // Set default template in Quill
                                                     if (ideaQuill) {
                                                         ideaQuill.root.innerHTML = `
-          <p><strong>Steps to Reproduce:</strong><br>------------------------------------</p>
-          <p><strong>Test Data:</strong><br>------------------------------------</p>
-          <p><strong>Expected Result:</strong><br>------------------------------------</p>
-          <p><strong>Actual Result:</strong><br>------------------------------------</p>
-        `;
+                                                        <p><strong>Steps to Reproduce:</strong><br></p>
+                                                            <p><strong>Test Data:</strong><br></p>
+                                                            <p><strong>Expected Result:</strong><br></p>
+                                                            <p><strong>Actual Result:</strong><br></p>
+                                                        `;
                                                     }
                                                     if (bugQuill) {
                                                         bugQuill.root.innerHTML = ""; // clear Bug editor for now

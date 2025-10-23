@@ -390,3 +390,8 @@ select.invalid {
 .issue-options label:hover {
     color: #000;
 }
+
+.ql-editor {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}

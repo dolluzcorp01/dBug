@@ -6,17 +6,19 @@ const ThankYou = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const { employeeName, ticketId } = location.state || {};
+    const { employeeName, ticketId, issueType } = location.state || {};
+
+    const lowerIssue = issueType ? issueType.toLowerCase() : "ticket";
 
     return (
         <div className="thankyou-container">
-            <h1>🎉Submitted!</h1>
+            <h1>🎉 Submitted!</h1>
             <p>
                 Thank you, <strong>{employeeName}</strong>! <br />
-                Your ticket has been submitted successfully.
+                Your {lowerIssue} has been submitted successfully.
             </p>
             <p>
-                <strong>Ticket ID:</strong> {ticketId}
+                <strong>{issueType} ID:</strong> {ticketId}
             </p>
             <p>You will receive updates via email shortly.</p>
 
@@ -24,7 +26,7 @@ const ThankYou = () => {
                 className="thankyou-button"
                 onClick={() => navigate("/Tickets")}
             >
-                Raise Another Ticket
+                Raise Another {issueType}
             </button>
         </div>
     );

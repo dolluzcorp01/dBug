@@ -138,10 +138,10 @@ router.post("/submit", ticketUpload.array("attachments"), async (req, res) => {
     const attachmentPaths = req.files ? req.files.map((f) => f.path) : [];
 
     try {
-        // 🔹 Fetch emp first & last name from employee table
+        // 🔹 Fetch submitting employee details
         const [empResult] = await new Promise((resolve, reject) => {
             db.query(
-                "SELECT emp_first_name, emp_last_name FROM dadmin.employee WHERE emp_id = ?",
+                "SELECT emp_first_name, emp_last_name, emp_mail_id FROM dadmin.employee WHERE emp_id = ?",
                 [data.emp_id],
                 (err, results) => {
                     if (err) return reject(err);
@@ -154,20 +154,21 @@ router.post("/submit", ticketUpload.array("attachments"), async (req, res) => {
             return res.status(400).json({ message: "Invalid employee ID" });
         }
 
-        // Insert ticket into DB
+        // 🔹 Insert ticket into DB
         const insertQuery = `
-      INSERT INTO tickets_entry
-      (ticket_id, emp_id, issue_type, summary, description, attachment_file, assignee, 
-       priority_level, reporting_team, testing_type, device_tested, created_by)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
-        const placeholderId = "TEMP"; // temporary, will update after insert
+            INSERT INTO tickets_entry
+            (ticket_id, emp_id, issue_type, summary, description, attachment_file, assignee,
+             priority_level, reporting_team, testing_type, device_tested, created_by)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+        const placeholderId = "TEMP";
 
         const descriptionValue = Array.isArray(data.description)
-            ? data.description.join('\n')
-            : data.description || '';
+            ? data.description.join("\n")
+            : data.description || "";
 
-        const attachmentValue = attachmentPaths.length > 0 ? JSON.stringify(attachmentPaths) : null;
+        const attachmentValue =
+            attachmentPaths.length > 0 ? JSON.stringify(attachmentPaths) : null;
 
         const devicesTestedValue =
             data.devicesTested && typeof data.devicesTested !== "string"
@@ -198,50 +199,112 @@ router.post("/submit", ticketUpload.array("attachments"), async (req, res) => {
             );
         });
 
-        // Generate formatted ticket ID
+        // 🔹 Generate formatted ticket ID
         const autoId = insertResult.insertId;
         const formattedId = `DZDXT-${autoId}`;
 
-        // Update ticket_id in DB
-        const updateQuery = `UPDATE tickets_entry SET ticket_id = ? WHERE auto_id = ?`;
+        // 🔹 Update ticket_id in DB
         await new Promise((resolve, reject) => {
-            db.query(updateQuery, [formattedId, autoId], (err) => {
-                if (err) return reject(err);
-                resolve();
-            });
+            db.query(
+                "UPDATE tickets_entry SET ticket_id = ? WHERE auto_id = ?",
+                [formattedId, autoId],
+                (err) => {
+                    if (err) return reject(err);
+                    resolve();
+                }
+            );
         });
 
-        // 🔹 Send confirmation email
-        const msg = {
-            from: '"Dolluz Support" <support@dolluzcorp.in>',
-            to: [
-                { email: data.email },
-                { email: "admin@dolluzcorp.in" },
-            ],
-            subject: `[Ticket ID: ${formattedId}] Support Request Notification`,
-            html: `
+        // 🔹 Determine terms based on issue type
+        const isBug = data.issue_type.toLowerCase() === "bug";
+        const issueWord = isBug ? "Bug" : "Idea";
+
+        // -----------------------
+        // ✉️ Mail to ticket submitter
+        // -----------------------
+        const userMailSubject = isBug
+            ? `[Defect ID: ${formattedId}] Update on your Bug`
+            : `[Idea ID: ${formattedId}] Update on your Idea`;
+
+        const userMailBody = `
             <div style="font-family: Arial, sans-serif; padding: 15px; border: 1px solid #ddd; border-radius: 8px;">
-              <h2 style="color: #4A90E2;">Ticket Submission Confirmation</h2>
+              <h2 style="color: #4A90E2;">${issueWord} Submission Confirmation</h2>
               <p>Hello <strong>${empResult.emp_first_name} ${empResult.emp_last_name}</strong>,</p>
-              <p>Your ticket <strong>${formattedId}</strong> regarding "<em>${data.summary}</em>" has been <strong>Submitted</strong>.</p>
+              <p>Your ${issueWord.toLowerCase()} <strong>${formattedId}</strong> regarding "<em>${data.summary}</em>" has been <strong>Submitted</strong>.</p>
               <p><strong>Current Status:</strong> Submitted</p>
               <p><strong>Latest Comment:</strong> - </p>
               <br/>
               <p>For any concerns, amendments, or notes, please write to 
               <a href="mailto:admin@dolluzcorp.in">admin@dolluzcorp.in</a> 
-              with the Ticket ID in the subject line.</p>
+              with the ${issueWord} ID in the subject line.</p>
               <br/>
               <p style="color: #888;">— Dolluz Support Team</p>
             </div>
-          `,
+        `;
+
+        const msgToUser = {
+            from: '"Dolluz Support" <support@dolluzcorp.in>',
+            to: data.email,
+            subject: userMailSubject,
+            html: userMailBody,
         };
 
-        await sgMail.send(msg);
+        await sgMail.send(msgToUser);
+
+        // -----------------------
+        // ✉️ Mail to Assignee
+        // -----------------------
+
+        // Find assignee email by matching full name
+        const [assigneeResult] = await new Promise((resolve, reject) => {
+            db.query(
+                `SELECT emp_mail_id FROM dadmin.employee 
+                 WHERE CONCAT(TRIM(emp_first_name), ' ', TRIM(emp_last_name)) = ?`,
+                [data.assignee.trim()],
+                (err, results) => {
+                    if (err) return reject(err);
+                    resolve(results);
+                }
+            );
+        });
+
+        if (assigneeResult) {
+            const assigneeMailSubject = isBug
+                ? `[Defect ID: ${formattedId}] Bug Notification`
+                : `[Idea ID: ${formattedId}] Idea Notification`;
+
+            const assigneeMailBody = `
+                <div style="font-family: Arial, sans-serif; padding: 15px; border: 1px solid #ddd; border-radius: 8px;">
+                  <h2 style="color: #4A90E2;">New ${issueWord} Assigned</h2>
+                  <p>Hello <strong>${data.assignee}</strong>,</p>
+                  <p>You have been assigned a new ${issueWord.toLowerCase()} <strong>${formattedId}</strong> submitted by 
+                  <strong>${empResult.emp_first_name} ${empResult.emp_last_name}</strong>.</p>
+                  <p><strong>Summary:</strong> ${data.summary}</p>
+                  <p><strong>Status:</strong> Submitted</p>
+                  <br/>
+                  <p>Please review the details and take necessary action.</p>
+                  <br/>
+                  <p style="color: #888;">— Dolluz Support Team</p>
+                </div>
+            `;
+
+            const msgToAssignee = {
+                from: '"Dolluz Support" <support@dolluzcorp.in>',
+                to: assigneeResult.emp_mail_id,
+                subject: assigneeMailSubject,
+                html: assigneeMailBody,
+            };
+
+            await sgMail.send(msgToAssignee);
+        }
 
         return res.json({
-            message: "Ticket submitted successfully",
+            message: "Ticket submitted and emails sent successfully",
             ticket_id: formattedId,
+            employeeName: `${empResult.emp_first_name} ${empResult.emp_last_name}`,
+            issueType: issueWord,
         });
+
     } catch (error) {
         console.error("❌ Error submitting ticket or sending email:", error);
         res.status(500).json({ message: "Failed to submit ticket or send email" });
