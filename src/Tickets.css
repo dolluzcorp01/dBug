@@ -396,3 +396,29 @@ select.invalid {
     padding-top: 0 !important;
     margin-top: 0 !important;
 }
+
+/* Responsive fix for mobile view */
+@media (max-width: 500px) {
+
+    .issue-options {
+        gap: 30px;
+    }
+}
+
+/* Responsive fix for mobile view */
+@media (max-width: 350px) {
+    .issue-type-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .issue-options {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .issue-type-label {
+        margin-bottom: 6px;
+    }
+}
