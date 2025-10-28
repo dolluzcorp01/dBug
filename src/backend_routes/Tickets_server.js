@@ -186,7 +186,7 @@ router.post("/submit", ticketUpload.array("attachments"), async (req, res) => {
                     descriptionValue,
                     attachmentValue,
                     data.assignee,
-                    data.priority_level  || null,
+                    data.priority_level || null,
                     data.reporting_team || null,
                     data.testing_type || null,
                     devicesTestedValue,
