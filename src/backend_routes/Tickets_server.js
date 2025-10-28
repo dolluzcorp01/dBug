@@ -15,7 +15,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 router.get("/employee/:email", (req, res) => {
     const email = req.params.email;
 
-    const query = `SELECT * FROM dadmin.employee WHERE emp_mail_id = ? AND deleted_time IS NULL`;
+    const query = `SELECT * FROM dadmin.employee WHERE emp_mail_id = ? AND deleted_time IS NULL AND is_active = '1'`;
     db.query(query, [email], (err, results) => {
         if (err) {
             console.error(`❌ Database error while fetching employee ${email}:`, err);
