@@ -259,9 +259,21 @@ const Tickets = () => {
 
         try {
             const res = await apiFetch(`/api/tickets/employee/${value}`);
-            if (!res.ok) throw new Error("Employee not found");
+            // ❗ If backend returns 401 or 404, handle it gracefully
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => null);
+
+                if (res.status === 401 && errorData?.message) {
+                    // 🔥 Show access denied error properly
+                    setEmailError(errorData.message);
+                    return;
+                }
+
+                throw new Error("Employee not found");
+            }
 
             const data = await res.json();
+
             setFormData((prev) => ({
                 ...prev,
                 emp_id: data.emp_id,

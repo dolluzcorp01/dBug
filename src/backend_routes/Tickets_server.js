@@ -15,19 +15,27 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 router.get("/employee/:email", (req, res) => {
     const email = req.params.email;
 
-    const query = `SELECT * FROM dadmin.employee WHERE emp_mail_id = ? AND deleted_time IS NULL AND is_active = '1'`;
+    const query = `SELECT * FROM dadmin.employee WHERE emp_mail_id = ? AND deleted_time IS NULL `;
     db.query(query, [email], (err, results) => {
         if (err) {
             console.error(`❌ Database error while fetching employee ${email}:`, err);
             return res.status(500).json({ error: "Database error" });
         }
 
-        if (results.length > 0) {
-            return res.json(results[0]);
+        if (results.length === 0) {
+            console.warn(`⚠️ Employee not found for email: ${email}`);
+            return res.status(404).json({ error: "Employee not found" });
         }
 
-        console.warn(`⚠️ Employee not found for email: ${email}`);
-        return res.status(404).json({ error: "Employee not found" });
+        // 🔥 CHECK HERE — if app_dAssist = 0, block access
+        if (results[0].app_dBug === 0) {
+            return res.status(401).json({
+                message: "Access denied. You don't have access for dBug."
+            });
+        }
+
+        // If everything is fine, return the result
+        return res.json(results[0]);
     });
 });
 
