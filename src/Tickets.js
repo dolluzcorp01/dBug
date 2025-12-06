@@ -26,6 +26,39 @@ const Tickets = () => {
     const [emailVerified, setEmailVerified] = useState(false);
     const [issueType, setIssueType] = useState(""); // "Bug" or "Idea"
 
+    useEffect(() => {
+        checkAutoLogin();
+    }, []);
+
+    const checkAutoLogin = async () => {
+        try {
+            const res = await apiFetch("/api/tickets/check-auth", {
+                method: "GET",
+                credentials: "include"
+            });
+
+            const data = await res.json();
+
+            if (data.loggedIn) {
+                autoFillEmployee(data.emp);
+            }
+        } catch (err) {
+            console.log("Auth check error", err);
+        }
+    };
+
+    const autoFillEmployee = (emp) => {
+        setFormData({
+            ...formData,
+            emp_id: emp.emp_id,
+            email: emp.emp_mail_id,
+        });
+
+        setEmailVerified(true);
+        setOtpVerified(true);
+        setShowOtpField(false);
+    };
+
     const deviceOptions = [
         { value: "Desktop", label: "Desktop" },
         { value: "Tablet", label: "Tablet" },

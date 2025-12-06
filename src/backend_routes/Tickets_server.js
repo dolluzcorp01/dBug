@@ -3,13 +3,54 @@ const express = require("express");
 const getDBConnection = require('../../config/db');
 const router = express.Router();
 const multer = require("multer");
-
-const sgMail = require("@sendgrid/mail");
-
 const db = getDBConnection('dbug');
 
 // ✅ Set your SendGrid API key
+const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+const jwt = require("jsonwebtoken");
+
+// check-auth
+router.get("/check-auth", (req, res) => {
+    const token = req.cookies?.token;
+
+    if (!token) {
+        return res.json({ loggedIn: false });
+    }
+
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+        if (err) {
+            return res.json({ loggedIn: false });
+        }
+
+        const empId = decoded.emp_id;
+
+        // Fetch employee details
+        const query = `SELECT * FROM dadmin.employee WHERE emp_id = ? AND deleted_time IS NULL `;
+
+        db.query(query, [empId], (err, results) => {
+            if (err || results.length === 0) {
+                return res.json({ loggedIn: false });
+            }
+
+            const emp = results[0];
+
+            // Check dAssist access
+            if (emp.app_dAssist === 0) {
+                return res.json({
+                    loggedIn: false,
+                    message: "Access denied. You don't have access for dAssist."
+                });
+            }
+
+            res.json({
+                loggedIn: true,
+                emp: emp
+            });
+        });
+    });
+});
 
 // Lookup employee by email
 router.get("/employee/:email", (req, res) => {
