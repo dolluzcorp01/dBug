@@ -13,7 +13,7 @@ const jwt = require("jsonwebtoken");
 
 // check-auth
 router.get("/check-auth", (req, res) => {
-    const token = req.cookies?.token;
+    const token = req.cookies?.dolluzcorp_token;
 
     if (!token) {
         return res.json({ loggedIn: false });
