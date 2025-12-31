@@ -621,7 +621,7 @@ const Tickets = () => {
                                                         assignee: "Pavithran",
                                                         summary: "",
                                                         description: "", // Quill will handle default template
-                                                        attachment: null,
+                                                        attachments: [],
                                                         priority: "",
                                                         team: "",
                                                         testing_type: "",
@@ -664,7 +664,7 @@ const Tickets = () => {
                                                         assignee: "Anandth Shoban Balasubramanian",
                                                         summary: "",
                                                         description: "",
-                                                        attachment: null,
+                                                        attachments: [],
                                                         priority: "",
                                                         team: "",
                                                         testing_type: "",
