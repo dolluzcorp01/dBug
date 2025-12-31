@@ -187,6 +187,16 @@ const Tickets = () => {
     const handleFileChange = (e) => {
         const files = Array.from(e.target.files);
         if (!files.length) return;
+        // ✅ LIMIT: max 3 total
+        if ((formData.attachments?.length || 0) + files.length > 3) {
+            Swal.fire({
+                icon: "error",
+                title: "Limit Exceeded",
+                text: "You can upload a maximum of 3 files only",
+            });
+            e.target.value = null;
+            return;
+        }
 
         const validFiles = [];
 
@@ -269,12 +279,12 @@ const Tickets = () => {
     };
 
     // ✅ Handle field changes
-    const handleChange = async (e) => {
-        const { name, value, type, files } = e.target;
+    const handleChange = (e) => {
+        const { name, value } = e.target;
 
         setFormData((prev) => ({
             ...prev,
-            [name]: type === "file" ? files[0] : value,
+            [name]: value,
         }));
 
         if (name === "email") {

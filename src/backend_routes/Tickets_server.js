@@ -182,7 +182,7 @@ const ticketUpload = multer({
 });
 
 // 🔹 Submit ticket details + send email
-router.post("/submit", ticketUpload.array("attachments"), async (req, res) => {
+router.post("/submit", ticketUpload.array("attachments", 3), async (req, res) => {
     const data = req.body;
     const attachmentPaths = req.files ? req.files.map((f) => f.path) : [];
 
